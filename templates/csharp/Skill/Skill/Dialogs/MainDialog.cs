@@ -139,7 +139,21 @@ namespace $safeprojectname$.Dialogs
                             {
                                 await innerDc.Context.SendActivityAsync(_templateEngine.GenerateActivityForLocale("CancelledMessage"));
                                 await innerDc.CancelAllDialogsAsync();
-                                await innerDc.BeginDialogAsync(InitialDialogId);
+                                if (innerDc.Context.IsSkill())
+                                {
+                                    // EndOfConversation activity should be passed back to indicate that VA should resume control of the conversation
+                                    var endOfConversation = new Activity(ActivityTypes.EndOfConversation)
+                                    {
+                                        Code = EndOfConversationCodes.UserCancelled,
+                                    };
+
+                                    await innerDc.Context.SendActivityAsync(endOfConversation, cancellationToken);
+                                }
+                                else
+                                {
+                                    await innerDc.BeginDialogAsync(InitialDialogId);
+                                }
+
                                 interrupted = true;
                                 break;
                             }
@@ -159,7 +173,21 @@ namespace $safeprojectname$.Dialogs
 
                                 await innerDc.Context.SendActivityAsync(_templateEngine.GenerateActivityForLocale("LogoutMessage"));
                                 await innerDc.CancelAllDialogsAsync();
-                                await innerDc.BeginDialogAsync(InitialDialogId);
+                                if (innerDc.Context.IsSkill())
+                                {
+                                    // EndOfConversation activity should be passed back to indicate that VA should resume control of the conversation
+                                    var endOfConversation = new Activity(ActivityTypes.EndOfConversation)
+                                    {
+                                        Code = EndOfConversationCodes.UserCancelled,
+                                    };
+
+                                    await innerDc.Context.SendActivityAsync(endOfConversation, cancellationToken);
+                                }
+                                else
+                                {
+                                    await innerDc.BeginDialogAsync(InitialDialogId);
+                                }
+
                                 interrupted = true;
                                 break;
                             }
